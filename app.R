@@ -1,7 +1,4 @@
 library(shiny)
-library(dplyr)
-# library(magrittr)
-library(readxl)
 
 # load functions
 source('functions.R')
