@@ -12,13 +12,13 @@ ui <- fluidPage(
     sidebarLayout(
       sidebarPanel(
         width = 2, 
-        tags$style(type = "text/css", ".well { background-color: white; margin-left: 15px; margin-top: 40px;}"),
+        tags$style(type = "text/css", ".well {background-color: white; margin-left: 15px; margin-top: 40px;}"),
         UploadInput('tmp'),
         uiOutput('panel_side')
       ),
       mainPanel(
         width = 10, 
-        tags$style(type = "text/css", ".row { margin-top: 15px;}"),
+        tags$style(type = "text/css", ".row {margin-top: 15px;}"),
         uiOutput('panel_main')
       )
     )
@@ -27,16 +27,21 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
+  # initial setup
+  data_uploaded <- callModule(Upload, 'tmp')
+  
   # ui setup
   ui_setup <- callModule(SetUp, 'tmp')
   
   output$panel_side <- renderUI({
-    input$data_upload %>% need(message = FALSE) %>% validate
+    # input$data_upload %>% need(message = FALSE) %>% validate
+    data_uploaded() %>% need(message = FALSE) %>% validate
     ui_setup[['side']]
   })
   
   output$panel_main <- renderUI({
-    if (input$data_upload %>% is.null) callModule(Welcome, 'tmp')
+    # if (input$data_upload %>% is.null) callModule(Welcome, 'tmp')
+    if (data_uploaded() %>% is.null) callModule(Welcome, 'tmp')
     else ui_setup[['main']] 
   })
   
@@ -48,11 +53,13 @@ server <- function(input, output, session) {
   callModule(PlotlyBar, 'tmp')
   callModule(Report, 'report_button') # name is important here - links to setup.R
   
+  year_selected <- callModule(Year, 'tmp')
   
   # upload & wrangle data
   list_df <<- reactive({
     
-    inFile <- input$data_upload
+    # inFile <- input$data_upload
+    inFile <- data_uploaded()
     if (is.null(inFile)) return(NULL)
     ext <- tools::file_ext(inFile$name)
     file.rename(inFile$datapath, paste(inFile$datapath, ext, sep = '.'))
@@ -63,12 +70,14 @@ server <- function(input, output, session) {
     df_extra <-
       read_excel(paste(inFile$datapath, ext, sep = '.'),
                  sheet = paste0('Soft pledges-other ctrbns ', input$year),
+                 # sheet = paste0('Soft pledges-other ctrbns ', year_selected()),
                  skip = 1) %>%
       ExcludeEmpty
     
     df_filter <-
       read_excel(paste(inFile$datapath, ext, sep = '.'),
                  sheet = paste0('SRP ', input$year, ' funds requested'),
+                 # sheet = paste0('SRP ', year_selected(), ' funds requested'),
                  skip = 2) %>%
       ExcludeEmpty
     
@@ -80,7 +89,8 @@ server <- function(input, output, session) {
   # filter data based on user inputs  
   data_filtered <<- reactive({
     
-    if (is.null(input$data_upload)) return()
+    # if (is.null(input$data_upload)) return()
+    if (data_uploaded() %>% is.null) return()
     
     tmp1 <-
       list_df()[[1]] %>%

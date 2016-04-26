@@ -3,11 +3,11 @@ DFTableOutput <- function(id){
   
   tabPanel(
     'Data tables', icon = icon("table"),
-    tags$style(type = "text/css", ".row { margin-top: 15px;}"),
+    tags$style(type = "text/css", ".row {margin-top: 15px;}"),
     
     fluidRow(
       downloadButton('dl_table', label = "Download table"),
-      tags$style(type='text/css', "#dl_table { background-color:LightGrey; float:right; margin-bottom: 15px;}")
+      tags$style(type='text/css', "#dl_table {background-color:LightGrey; float:right; margin-bottom: 15px;}")
     ),
     
     DT::dataTableOutput(ns('table')),
