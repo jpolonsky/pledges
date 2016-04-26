@@ -25,7 +25,8 @@ PlotlyBar <- function(input, output, session, ...){
             colscheme = input$colours
             # NB this namespace (input$colours) relates to colours.R, not to call in PlotlyBarOutput above
     ) %>% 
-      ggplotly
+      ggplotly(tooltip = c('x', 'y')) %>% 
+      layout(showlegend = FALSE)
     
   })
   

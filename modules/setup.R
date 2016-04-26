@@ -7,9 +7,9 @@ source('modules/report.R')
 ## main page
 source('modules/datatable.R')
 source('modules/pivot.R')
-source('modules/highchart.R')
-source('modules/plotly.R')
 source('modules/colours.R')
+source('modules/plotly.R')
+source('modules/highchart.R')
 
 SetUp <- function(input, output, session, ...){
   
@@ -28,8 +28,8 @@ SetUp <- function(input, output, session, ...){
     tabsetPanel(
       DFTableOutput('tmp'),
       PivotTableOutput('tmp'),
-      PlotlyBarOutput('tmp'),
-      HighChartBarOutput('tmp')
+      PlotlyBarOutput('tmp')
+      # HighChartBarOutput('tmp')
     ) 
   
   list(panel_side, panel_main) %>% setNames(c('side', 'main'))

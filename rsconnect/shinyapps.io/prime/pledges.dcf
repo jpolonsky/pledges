@@ -2,9 +2,8 @@ name: pledges
 account: prime
 server: shinyapps.io
 appId: 98032
-bundleId: 433702
+bundleId: 434544
 url: https://prime.shinyapps.io/pledges/
-when: 1461596191.83526
+when: 1461665596.2489
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: deploy.R|tmp.Rmd|tmp.sty|tmp.tex
