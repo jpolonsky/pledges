@@ -89,7 +89,7 @@ PrepareData <- function(df_raw, df_extra, df_filter){
     setNames(c('appeal', 'Crisis type', 'Amount requested', 'Amount received', 'Funded (%)'))
   
   # return list of prepared dataframes
-  list(df_total, df_donor)
+  list(df_total, df_donor, df_filter)
   
 }
 
