@@ -1,13 +1,25 @@
 YearInput <- function(id){
   ns <- NS(id)
-  
-  radioButtons(
-    ns('year'), 
-    'Select year of interest:',
-    c('2014', '2015', '2016'), 
-    selected = '2016'
-  )
-  
+  uiOutput(ns("ui_year"))
 }
 
-Year <- function(input, output, session, ...) reactive(input$year)
+Year <- function(input, output, session, ...) {
+  
+  output$ui_year <- renderUI({
+    ns <- session$ns
+    
+    # for dynamic 'year' selection based on sheet names
+    list_years <- list_sheets %>% str_extract('201\\d') %>% unique %>% subset(!is.na(.)) %>% as.numeric
+    
+    radioButtons(
+      ns('year'),
+      'Select year of interest:',
+      list_years,
+      selected = max(list_years)
+    )
+    
+  })
+  
+  reactive(input$year)
+  
+}

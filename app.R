@@ -1,3 +1,4 @@
+# load packages
 library(shiny)
 # load functions
 source('functions.R')
@@ -7,7 +8,8 @@ source('modules/upload.R')
 source('modules/welcome.R')
 # source('modules/wrangle.R')
 
-## app -------------------------------------------------------------------------
+
+## ui --------------------------------------------------------------------------
 ui <- fluidPage(
   titlePanel('Emergency Risk Management financial reporting tool'), fluidRow(
     sidebarLayout(
@@ -26,10 +28,13 @@ ui <- fluidPage(
   )
 )
 
+
+## server ----------------------------------------------------------------------
 server <- function(input, output, session) {
   
   # initial setup
   data_uploaded <- callModule(Upload, 'tmp')
+  
   
   # ui setup
   ui_setup <- callModule(SetUp, 'tmp')
@@ -52,11 +57,13 @@ server <- function(input, output, session) {
   callModule(HighChartBar, 'tmp')
   callModule(Report, 'id_report') # name is important here - links to setup.R
   
+  
   # call ui modules & store reactive inputs - namespaces links 
-  year_selected <- callModule(Year, 'id_year')
+  year_selected <- callModule(Year, 'id_year') # NB. a renderUI module!
   type_selected <- callModule(Type, 'id_type')
   funded_selected <- callModule(Funded, 'id_funded') # NB. a renderUI module!
   # list_df <- callModule(WrangleData, 'tmp', data_uploaded) # doesn't work as expected
+  
   
   # upload & wrangle data
   list_df <<- reactive({
@@ -64,26 +71,28 @@ server <- function(input, output, session) {
     in_file <- data_uploaded()
     if (is.null(in_file)) return()
     ext <- tools::file_ext(in_file$name)
-    file.rename(in_file$datapath, paste(in_file$datapath, ext, sep = '.'))
-    # list_sheets <- paste(in_file$datapath, ext, sep = '.') %>% excel_sheets # excel_sheets not yet working in shiny
+    file_name <- paste(in_file$datapath, ext, sep = '.')
+    file.rename(in_file$datapath, file_name)
+    list_sheets <<- file_name %>% excel_sheets # for use in dynamic 'year' selection - see year.R
 
-    df_raw <- read_excel(paste(in_file$datapath, ext, sep = '.'), sheet = 'Contribution Data', skip = 1) %>% ExcludeEmpty
+    df_raw <- read_excel(file_name, sheet = 'Contribution Data', skip = 1) %>% ExcludeEmpty
 
     df_extra <-
-      read_excel(paste(in_file$datapath, ext, sep = '.'),
+      read_excel(file_name,
                  sheet = paste0('Soft pledges-other ctrbns ', year_selected()),
                  skip = 1) %>%
       ExcludeEmpty
 
     df_filter <-
-      read_excel(paste(in_file$datapath, ext, sep = '.'),
+      read_excel(file_name,
                  sheet = paste0('SRP ', year_selected(), ' funds requested'),
                  skip = 2) %>%
       ExcludeEmpty
 
     PrepareData(df_raw, df_extra, df_filter)
-
+    
   })
+  
   
   # filter data based on user inputs  
   data_filtered <<- reactive({
@@ -110,5 +119,7 @@ server <- function(input, output, session) {
   
 }
 
-shinyApp(ui = ui, server = server)
+
+## run shinyapp ---------------------------------------------------------------
+shinyApp(ui, server)
 
