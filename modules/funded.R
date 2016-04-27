@@ -1,17 +1,25 @@
 FundedInput <- function(id){
   ns <- NS(id)
+  uiOutput(ns("ui_funded"))
+}
+
+Funded <- function(input, output, session, ...) {
   
-  tagList(
+  output$ui_funded <- renderUI({
+    ns <- session$ns
+    
     sliderInput(
-      "slide_funded", "Proportion funded", 
+      ns("slide_funded"), 
+      "Proportion funded", 
       min = 0, 
-      #       max = max(data()[[1]]$`Funded (%)`), 
-      #       # value = range(data()[[1]]$`Funded (%)`),
-      #       value = c(0, max(data()[[1]]$`Funded (%)`)),
-      max = 100, 
-      value = c(0, 100),
+      max = max(list_df()[[1]]$`Funded (%)`),
+      # value = range(list_df()[[1]]$`Funded (%)`),
+      value = c(0, max(list_df()[[1]]$`Funded (%)`)),
       step = 10
     )
-  )
+    
+  })
+  
+  reactive(input$slide_funded)
   
 }

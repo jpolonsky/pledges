@@ -5,6 +5,7 @@ source('functions.R')
 source('modules/setup.R')
 source('modules/upload.R')
 source('modules/welcome.R')
+# source('modules/wrangle.R')
 
 ## app -------------------------------------------------------------------------
 ui <- fluidPage(
@@ -34,76 +35,73 @@ server <- function(input, output, session) {
   ui_setup <- callModule(SetUp, 'tmp')
   
   output$panel_side <- renderUI({
-    # input$data_upload %>% need(message = FALSE) %>% validate
     data_uploaded() %>% need(message = FALSE) %>% validate
     ui_setup[['side']]
   })
   
   output$panel_main <- renderUI({
-    # if (input$data_upload %>% is.null) callModule(Welcome, 'tmp')
     if (data_uploaded() %>% is.null) callModule(Welcome, 'tmp')
-    else ui_setup[['main']] 
+    else ui_setup[['main']]
   })
   
   
-  # call modules
+  # call ui modules
   callModule(DFTable, 'tmp')
   callModule(PivotTable, 'tmp')
-  callModule(HighChartBar, 'tmp')
   callModule(PlotlyBar, 'tmp')
-  callModule(Report, 'report_button') # name is important here - links to setup.R
+  callModule(HighChartBar, 'tmp')
+  callModule(Report, 'id_report') # name is important here - links to setup.R
   
-  year_selected <- callModule(Year, 'tmp')
+  # call ui modules & store reactive inputs - namespaces links 
+  year_selected <- callModule(Year, 'id_year')
+  type_selected <- callModule(Type, 'id_type')
+  funded_selected <- callModule(Funded, 'id_funded') # NB. a renderUI module!
+  # list_df <- callModule(WrangleData, 'tmp', data_uploaded) # doesn't work as expected
   
   # upload & wrangle data
   list_df <<- reactive({
-    
-    # inFile <- input$data_upload
-    inFile <- data_uploaded()
-    if (is.null(inFile)) return(NULL)
-    ext <- tools::file_ext(inFile$name)
-    file.rename(inFile$datapath, paste(inFile$datapath, ext, sep = '.'))
-    # list_sheets <- excel_sheets(inFile$datapath, ext, sep = '.')) # excel_sheets not yet working in shiny
-    
-    df_raw <- read_excel(paste(inFile$datapath, ext, sep = '.'), sheet = 'Contribution Data', skip = 1) %>% ExcludeEmpty
-    
+
+    in_file <- data_uploaded()
+    if (is.null(in_file)) return()
+    ext <- tools::file_ext(in_file$name)
+    file.rename(in_file$datapath, paste(in_file$datapath, ext, sep = '.'))
+    # list_sheets <- paste(in_file$datapath, ext, sep = '.') %>% excel_sheets # excel_sheets not yet working in shiny
+
+    df_raw <- read_excel(paste(in_file$datapath, ext, sep = '.'), sheet = 'Contribution Data', skip = 1) %>% ExcludeEmpty
+
     df_extra <-
-      read_excel(paste(inFile$datapath, ext, sep = '.'),
-                 sheet = paste0('Soft pledges-other ctrbns ', input$year),
-                 # sheet = paste0('Soft pledges-other ctrbns ', year_selected()),
+      read_excel(paste(in_file$datapath, ext, sep = '.'),
+                 sheet = paste0('Soft pledges-other ctrbns ', year_selected()),
                  skip = 1) %>%
       ExcludeEmpty
-    
+
     df_filter <-
-      read_excel(paste(inFile$datapath, ext, sep = '.'),
-                 sheet = paste0('SRP ', input$year, ' funds requested'),
-                 # sheet = paste0('SRP ', year_selected(), ' funds requested'),
+      read_excel(paste(in_file$datapath, ext, sep = '.'),
+                 sheet = paste0('SRP ', year_selected(), ' funds requested'),
                  skip = 2) %>%
       ExcludeEmpty
-    
-    PrepareData(df_raw, df_extra, df_filter)
-    
-  })
 
+    PrepareData(df_raw, df_extra, df_filter)
+
+  })
   
   # filter data based on user inputs  
   data_filtered <<- reactive({
     
-    # if (is.null(input$data_upload)) return()
-    if (data_uploaded() %>% is.null) return()
-    
     tmp1 <-
       list_df()[[1]] %>%
-      filter(`Funded (%)` >= input$slide_funded[[1]] &
-               `Funded (%)` <= input$slide_funded[[2]] &
-               `Crisis type` %in% input$type
+      filter(
+        `Funded (%)` >= funded_selected()[[1]] &
+          `Funded (%)` <= funded_selected()[[2]] &
+          `Crisis type` %in% type_selected()
       )
     
     tmp2 <-
       list_df()[[2]] %>%
-      filter(prop_funded >= input$slide_funded[[1]] &
-               prop_funded <= input$slide_funded[[2]] &
-               status %in% input$type #& donor %in% input$donor
+      filter(
+        prop_funded >= funded_selected()[[1]] &
+          prop_funded <= funded_selected()[[2]] &
+          status %in% type_selected()
       )
     
     list(tmp1, tmp2)
