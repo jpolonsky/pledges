@@ -100,13 +100,24 @@ server <- function(input, output, session) {
   # filter data based on user inputs  
   data_filtered <<- reactive({
     
-    tmp1 <-
+    tmp0 <-
       list_df()[[1]] %>%
       filter(
         `Funded (%)` >= funded_selected()[[1]] &
           `Funded (%)` <= funded_selected()[[2]] &
           `Crisis type` %in% type_selected()
-      )
+      ) 
+    
+    tmp1 <- 
+      bind_rows(tmp0,
+        summarise(tmp0,
+                  appeal = 'Total', `Crisis type` = '-',
+                  `Amount requested` = sum(`Amount requested`),
+                  `Amount received` = sum(`Amount received`),
+                  `Funded (%)` = round(`Amount received`/`Amount requested`*100, digits = 2)
+        )
+      ) %>% 
+      mutate(appeal = factor(appeal, levels = c(levels(tmp0$appeal), 'Total')))
     
     tmp2 <-
       list_df()[[2]] %>%

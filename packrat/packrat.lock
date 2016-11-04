@@ -34,8 +34,8 @@ Requires: base64enc
 
 Package: R6
 Source: CRAN
-Version: 2.1.3
-Hash: 1a8313c9df76d2a06aa27c13a4a71c73
+Version: 2.2.0
+Hash: 712773a3439bd32db5c40938e1a9aac2
 
 Package: RColorBrewer
 Source: CRAN
@@ -162,6 +162,12 @@ Version: 2.1.0
 Hash: 50e297b0191179c39c7dcae0eff72b51
 Requires: digest, gtable, plyr, reshape2, scales
 
+Package: gistr
+Source: CRAN
+Version: 0.3.6
+Hash: 2e461c85d611e127febc76a4dac88735
+Requires: assertthat, dplyr, httr, jsonlite, knitr, magrittr, rmarkdown
+
 Package: gridBase
 Source: CRAN
 Version: 0.4-7
@@ -268,6 +274,11 @@ Source: CRAN
 Version: 1.5
 Hash: bdc4d48c3135e8f3b399536ddf160df4
 
+Package: maps
+Source: CRAN
+Version: 3.1.1
+Hash: 4a0a1b1764bfe2c41c6fc21790408caf
+
 Package: markdown
 Source: CRAN
 Version: 0.7.7
@@ -320,6 +331,12 @@ Version: 1.8.4
 Hash: 75ca080b10a9314a9b293964331e5df7
 Requires: Rcpp
 
+Package: pryr
+Source: CRAN
+Version: 0.1.2
+Hash: 11d3855cc4309fc37444d82a38f45f09
+Requires: Rcpp, stringr
+
 Package: psych
 Source: CRAN
 Version: 1.6.9
@@ -337,6 +354,13 @@ Source: CRAN
 Version: 0.4-6
 Hash: acf4e0fd148421ecbe51e84b95998447
 Requires: TTR, xts, zoo
+
+Package: rbokeh
+Source: CRAN
+Version: 0.4.2
+Hash: 6bb1e55e658e7524a15cf458cb9e961f
+Requires: digest, ggplot2, gistr, hexbin, htmlwidgets, jsonlite,
+    lazyeval, magrittr, maps, pryr, scales
 
 Package: readxl
 Source: CRAN
@@ -399,8 +423,8 @@ Requires: RColorBrewer, Rcpp, dichromat, labeling, munsell, plyr
 
 Package: shiny
 Source: CRAN
-Version: 0.14
-Hash: 695d82a6a0bc88b7fe693c968450f9ca
+Version: 0.14.1
+Hash: 65d870a0d4c8b9a2ac3dd552a367510b
 Requires: R6, digest, htmltools, httpuv, jsonlite, mime, sourcetools,
     xtable
 
